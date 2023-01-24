@@ -1,0 +1,19 @@
+{
+  "manifest_version": 2,
+  "name": "Furiganizer",
+  "description": "This extension adds furigana to any Japanese kanji words on a webpage",
+  "version": "1.0",
+  "permissions": ["activeTab","tabs"],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["node_modules/kuromoji/build/kuromoji.js", "addFurigana.js"]
+    }
+  ],
+  "browser_action": {
+    "default_icon": "icon.png"
+  }
+}
