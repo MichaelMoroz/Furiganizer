@@ -13,7 +13,7 @@ function getColor(r,g,b)
 var japanesePOS = ["名詞", "形容詞", "動詞", "副詞", "助詞", "助動詞", "接続詞", "感動詞"];
 
 var textElements = document.querySelectorAll("p, span, h1, h2, h3");
-kuromoji.builder({ dicPath: chrome.runtime.getURL("node_modules/kuromoji/dict"), outputFormat: "hiragana" }).build(function (err, _tokenizer) {
+kuromoji.builder({ dicPath: chrome.runtime.getURL("kuromoji/dict")}).build(function (err, _tokenizer) {
     for (var i = 0; i < textElements.length; i++) {
         var textElement = textElements[i];
         var text = textElement.textContent;
