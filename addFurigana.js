@@ -52,11 +52,24 @@ kuromoji.builder({ dicPath: chrome.runtime.getURL("kuromoji/dict")}).build(funct
                         //create ruby element
                         var ruby = document.createElement("ruby");
                         ruby.appendChild(tokenElement);
+                        //creat furigana text above the japanese text
                         var rt = document.createElement("rt");
                         rt.textContent = furiganaHira + "";
                         ruby.appendChild(rt);
+                        //create another ruby element to add the translation text
+                        var ruby2 = document.createElement("ruby");
+                        ruby2.appendChild(ruby);
+                        //create translation text below the japanese text
+                        var transl = document.createElement("rt");
+                        transl.textContent = "test";
+                        //make the size of the translation text smaller
+                        transl.style.fontSize = "0.35em";
+                        //add the translation text to the ruby element
+                        ruby2.appendChild(transl);
+
+
                         //insert ruby element in the text at the index
-                        newElement += ruby.outerHTML;
+                        newElement += ruby2.outerHTML;
                     }
                     else
                     {
