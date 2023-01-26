@@ -20,22 +20,25 @@ kuromoji.builder({ dicPath: chrome.runtime.getURL("kuromoji/dict")}).build(funct
         var tokens = _tokenizer.tokenize(text);
         var textIndex = 0;
         var newText = "";
+        var hasJapanese = false;
         for (var j = 0; j < tokens.length; j++) {
             var token = tokens[j];
             var surfaceForm = token.surface_form;
 
             //check if token is japanese 
-            if (japanesePOS.indexOf(token.pos) === -1)
-             {
+            if (japanesePOS.indexOf(token.pos) === -1 || token.reading == null)
+            {
                 newText += surfaceForm;
                 textIndex += surfaceForm.length;
                 continue;
             }
+            hasJapanese = true;
 
             var index = text.indexOf(surfaceForm, textIndex);
             if (index !== -1) {
                 var tokenElement = document.createElement("span");
                 tokenElement.classList.add("token");
+                tokenElement.classList.add("japanese");
                 tokenElement.textContent = surfaceForm;
                 var furigana = token.reading;
                 textIndex = index + surfaceForm.length;
@@ -70,8 +73,8 @@ kuromoji.builder({ dicPath: chrome.runtime.getURL("kuromoji/dict")}).build(funct
                 {
                     if(token.pos == japanesePOS[k])
                     {
-                   
-                        newElement = "<span style='color: " + posColors[k] + "'>" + newElement + "</span>";
+                        //add color to the element and also add the tag specifying that it is japanese
+                        newElement = "<span class='japanese' style='color: " + posColors[k] + "'>" + newElement + "</span>";
                         break;
                     }
                 }
@@ -79,6 +82,7 @@ kuromoji.builder({ dicPath: chrome.runtime.getURL("kuromoji/dict")}).build(funct
                 newText += newElement;
             }
         }
-        textElement.innerHTML = newText;
+
+        if(hasJapanese) textElement.innerHTML = newText;
     }
 });
