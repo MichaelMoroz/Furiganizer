@@ -1,13 +1,19 @@
+function convertKatakanaToHiragana(str) {
+    return str.replace(/[\u30a1-\u30f6]/g, function(match) {
+        var chr = match.charCodeAt(0) - 0x60;
+        return String.fromCharCode(chr);
+    });
+}
 
-var DIC_URL = chrome.runtime.getURL("node_modules/kuromoji/dict"); 
+function getColor(r,g,b)
+{
+    return "rgb(" + r + "," + g + "," + b + ")";
+}
 
-console.log(DIC_URL);
-var tokenizer = null;
+var japanesePOS = ["名詞", "形容詞", "動詞", "副詞", "助詞", "助動詞", "接続詞", "感動詞"];
 
-//document.addEventListener("DOMContentLoaded", function() {
 var textElements = document.querySelectorAll("p, span, h1, h2, h3");
-
-kuromoji.builder({ dicPath: DIC_URL }).build(function (err, _tokenizer) {
+kuromoji.builder({ dicPath: chrome.runtime.getURL("node_modules/kuromoji/dict"), outputFormat: "hiragana" }).build(function (err, _tokenizer) {
     for (var i = 0; i < textElements.length; i++) {
         var textElement = textElements[i];
         var text = textElement.textContent;
@@ -17,6 +23,15 @@ kuromoji.builder({ dicPath: DIC_URL }).build(function (err, _tokenizer) {
         for (var j = 0; j < tokens.length; j++) {
             var token = tokens[j];
             var surfaceForm = token.surface_form;
+
+            //check if token is japanese 
+            if (japanesePOS.indexOf(token.pos) === -1)
+             {
+                newText += surfaceForm;
+                textIndex += surfaceForm.length;
+                continue;
+            }
+
             var index = text.indexOf(surfaceForm, textIndex);
             if (index !== -1) {
                 var tokenElement = document.createElement("span");
@@ -24,24 +39,46 @@ kuromoji.builder({ dicPath: DIC_URL }).build(function (err, _tokenizer) {
                 tokenElement.textContent = surfaceForm;
                 var furigana = token.reading;
                 textIndex = index + surfaceForm.length;
-                if(furigana != null && furigana != surfaceForm && token.pos == "名詞") 
+                newElement = "";
+                if(furigana != null && furigana != surfaceForm) 
                 {
-                    //create ruby element
-                    var ruby = document.createElement("ruby");
-                    ruby.appendChild(tokenElement);
-                    var rt = document.createElement("rt");
-                    rt.textContent = furigana;
-                    ruby.appendChild(rt);
-                    //insert ruby element in the text at the index
-                    newText += ruby.outerHTML;
+                    furiganaHira = convertKatakanaToHiragana(furigana);
+                    if(furiganaHira != surfaceForm)
+                    {
+                        //create ruby element
+                        var ruby = document.createElement("ruby");
+                        ruby.appendChild(tokenElement);
+                        var rt = document.createElement("rt");
+                        rt.textContent = furiganaHira;
+                        ruby.appendChild(rt);
+                        //insert ruby element in the text at the index
+                        newElement += ruby.outerHTML;
+                    }
+                    else
+                    {
+                        newElement += surfaceForm;
+                    }
                 } 
                 else
                 {
-                    newText += surfaceForm;
+                    newElement += surfaceForm;
                 }
+                
+                //loop through the japanese POS types and colors and add the color to the element if it matches the pos type
+                var posColors = ["#000000", "#FF7B54", "#FFB26B", "#FFD56F", "#939B62", "#1F8A70", "#BFDB38", "#FC7300"];
+                for(var k = 0; k < japanesePOS.length; k++)
+                {
+                    if(token.pos == japanesePOS[k])
+                    {
+                   
+                        newElement = "<span style='color: " + posColors[k] + "'>" + newElement + "</span>";
+                        break;
+                    }
+                }
+
+                newText += newElement;
             }
         }
         textElement.innerHTML = newText;
     }
 });
-//});
