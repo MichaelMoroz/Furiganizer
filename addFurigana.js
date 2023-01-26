@@ -251,7 +251,7 @@ function createAnkiDeck(unknownWords) {
     var ankiDeck = "";
     for(var word in unknownWords) {
         //add the word, translation, reading we get from kuromoji and japanese tag to the anki deck
-        ankiDeck += word + "," + unknownWords[word] + " (" + convertKatakanaToHiragana(getReading(word)) + ") ,japanese \r \n";
+        ankiDeck += word + "," + unknownWords[word] + " (" + convertKatakanaToHiragana(getReading(word)) + ") ,japanese \r\n";
     }
     //return the anki deck
     return ankiDeck;
