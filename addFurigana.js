@@ -53,7 +53,7 @@ kuromoji.builder({ dicPath: chrome.runtime.getURL("kuromoji/dict")}).build(funct
                         var ruby = document.createElement("ruby");
                         ruby.appendChild(tokenElement);
                         var rt = document.createElement("rt");
-                        rt.textContent = furiganaHira;
+                        rt.textContent = furiganaHira + "test";
                         ruby.appendChild(rt);
                         //insert ruby element in the text at the index
                         newElement += ruby.outerHTML;
@@ -74,8 +74,11 @@ kuromoji.builder({ dicPath: chrome.runtime.getURL("kuromoji/dict")}).build(funct
                 {
                     if(token.pos == japanesePOS[k])
                     {
-                        //add color to the element and also add the tag specifying that it is japanese
-                        newElement = "<span class='japanese' style='color: " + posColors[k] + "'>" + newElement + "</span>";
+                        //add color to the element(except first POS) and also add the tag specifying that it is japanese
+                        if(k != 0)
+                            newElement = "<span class='japanese' style='color: " + posColors[k] + "'>" + newElement + "</span>";
+                        else
+                            newElement = "<span class='japanese'>" + newElement + "</span>";
                         break;
                     }
                 }
