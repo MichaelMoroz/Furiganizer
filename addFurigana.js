@@ -89,10 +89,7 @@ function isReadingKnown(word) {
 
 //load the dictionary
 getDictionary();
-
-//list the dictionary in the console
-console.log(meaningDictionary);
-console.log(readingDictionary);
+//saveDictionary();
 
 var japanesePOS = ["名詞", "形容詞", "動詞", "副詞", "助詞", "助動詞", "接続詞", "感動詞"];
 
@@ -132,12 +129,13 @@ kuromoji.builder({ dicPath: chrome.runtime.getURL("kuromoji/dict")}).build(funct
                     furiganaHira = convertKatakanaToHiragana(furigana);
                     if(furiganaHira != surfaceForm)
                     {
+                        //show or hide furigana and translation depending on if the user knows the word
                         //create ruby element
                         var ruby = document.createElement("ruby");
                         ruby.appendChild(tokenElement);
                         //creat furigana text above the japanese text
                         var rt = document.createElement("rt");
-                        rt.textContent = furiganaHira + "";
+                        rt.textContent = isReadingKnown(surfaceForm)?"":furiganaHira;
                         ruby.appendChild(rt);
                         //create another ruby element to add the translation text
                         var ruby2 = document.createElement("ruby");
@@ -146,7 +144,7 @@ kuromoji.builder({ dicPath: chrome.runtime.getURL("kuromoji/dict")}).build(funct
                         var transl = document.createElement("rt");
 
                         //get the translation from the the Gisho API
-                        var translation = getTranslation(surfaceForm);
+                        var translation = isMeaningKnown(surfaceForm)?"":getTranslation(surfaceForm);
                         if(translation != null)
                         {
                             transl.textContent = translation;
