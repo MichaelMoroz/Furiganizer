@@ -179,6 +179,36 @@ function exportDictionary() {
     document.body.removeChild(element);
 }
 
+//function to load the dictionary from a json file
+function importDictionary() {
+    //create an input element
+    var element = document.createElement('input');
+    element.setAttribute('type', 'file');
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    //add an event listener to the input element
+    element.addEventListener('change', function() {
+        //get the file
+        var file = element.files[0];
+        //create a file reader
+        var reader = new FileReader();
+        //add an event listener to the file reader
+        reader.addEventListener('load', function() {
+            //get the dictionary from the file
+            var dictionary = JSON.parse(reader.result);
+            //set the dictionaries
+            meaningDictionary = dictionary.meaningDictionary;
+            readingDictionary = dictionary.readingDictionary;
+            //save the dictionaries
+            saveDictionary();
+        });
+        //read the file
+        reader.readAsText(file);
+    });
+}
+
 //load the dictionary
 getDictionary();
 //saveDictionary();

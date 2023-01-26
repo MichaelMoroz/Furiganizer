@@ -13,6 +13,7 @@ const REMOVE_READING = "removeReading";
 const REMOVE_MEANING = "removeMeaning";
 const REMOVE_ALL = "removeAll";
 const EXPORT_DICTIONARY = "exportDictionary";
+const IMPORT_DICTIONARY = "importDictionary";
 
 chrome.contextMenus.create({
   title: "Hide furigana (known reading)",
@@ -54,6 +55,12 @@ chrome.contextMenus.create({
   title: "Export dictionary",
   contexts: ['all'],
   id: EXPORT_DICTIONARY
+});
+
+chrome.contextMenus.create({
+  title: "Import dictionary",
+  contexts: ['all'],
+  id: IMPORT_DICTIONARY
 });
 
 function onClickHandler(info, tab) {
@@ -117,6 +124,15 @@ function onClickHandler(info, tab) {
       function: 
         function() {
           exportDictionary();
+        }
+    });
+  }
+  else if (info.menuItemId === IMPORT_DICTIONARY) {
+    chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      function: 
+        function() {
+          importDictionary();
         }
     });
   }
