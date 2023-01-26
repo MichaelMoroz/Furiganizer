@@ -10,6 +10,7 @@ function getColor(r,g,b)
     return "rgb(" + r + "," + g + "," + b + ")";
 }
 
+
 var japanesePOS = ["名詞", "形容詞", "動詞", "副詞", "助詞", "助動詞", "接続詞", "感動詞"];
 
 var textElements = document.querySelectorAll("p, span, h1, h2, h3");
