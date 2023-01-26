@@ -53,7 +53,7 @@ kuromoji.builder({ dicPath: chrome.runtime.getURL("kuromoji/dict")}).build(funct
                         var ruby = document.createElement("ruby");
                         ruby.appendChild(tokenElement);
                         var rt = document.createElement("rt");
-                        rt.textContent = furiganaHira + "test";
+                        rt.textContent = furiganaHira + "";
                         ruby.appendChild(rt);
                         //insert ruby element in the text at the index
                         newElement += ruby.outerHTML;
