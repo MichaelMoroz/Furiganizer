@@ -57,6 +57,43 @@ function getTranslation(word)
     return wordMap.get(word);
 }
 
+//load the user dictionary
+var meaningDictionary = {};
+var readingDictionary = {};
+
+// Save the dictionary to chrome.storage
+function saveDictionary() {
+    chrome.storage.local.set({'meaningDictionary': meaningDictionary, 'readingDictionary': readingDictionary}, function() {
+        console.log('Dictionary saved');
+    });
+}
+
+// Retrieve the dictionary from chrome.storage
+function getDictionary() {
+    chrome.storage.local.get(['meaningDictionary', 'readingDictionary'], function(result) {
+        meaningDictionary = result.meaningDictionary || {};
+        readingDictionary = result.readingDictionary || {};
+        console.log('Dictionary retrieved:', meaningDictionary, readingDictionary);
+    });
+}
+
+// Check if you know the meaning of a word
+function isMeaningKnown(word) {
+    return !!meaningDictionary[word];
+}
+
+// Check if you know the reading of a word
+function isReadingKnown(word) {
+    return !!readingDictionary[word];
+}
+
+//load the dictionary
+getDictionary();
+
+//list the dictionary in the console
+console.log(meaningDictionary);
+console.log(readingDictionary);
+
 var japanesePOS = ["名詞", "形容詞", "動詞", "副詞", "助詞", "助動詞", "接続詞", "感動詞"];
 
 var textElements = document.querySelectorAll("p, span, h1, h2, h3");
