@@ -10,6 +10,52 @@ function getColor(r,g,b)
     return "rgb(" + r + "," + g + "," + b + ")";
 }
 
+var wordMap = new Map();
+
+function initializeTranslation(word)
+{
+    //the word database is stored in jmdict-eng-common-3.3.1.json
+    //the format is as follows:
+    //"words": [
+    //{"id":"1000110","kanji":[{"common":true,"text":"ＣＤプレーヤー","tags":[]},{"common":false,"text":"ＣＤプレイヤー","tags":[]}],"kana":[{"common":true,"text":"シーディープレーヤー","tags":[],"appliesToKanji":["ＣＤプレーヤー"]},{"common":false,"text":"シーディープレイヤー","tags":[],"appliesToKanji":["ＣＤプレイヤー"]}],"sense":[{"partOfSpeech":["n"],"appliesToKanji":["*"],"appliesToKana":["*"],"related":[],"antonym":[],"field":[],"dialect":[],"misc":[],"info":[],"languageSource":[],"gloss":[{"lang":"eng","gender":null,"type":null,"text":"CD player"}]}]},
+
+    //load the word database
+    var JSON_URL = chrome.runtime.getURL("jmdict-eng-common-3.3.1.json");
+    var request = new XMLHttpRequest();
+    request.open("GET", JSON_URL, false);
+    request.send(null);
+    var wordDatabase = JSON.parse(request.responseText);
+    var wordList = wordDatabase.words;
+
+    //create a map from japanese word to english word
+    for (var i = 0; i < wordList.length; i++)
+    {
+        var word = wordList[i];
+        var kanji = word.kanji;
+        var kana = word.kana;
+        var sense = word.sense;
+        var englishWord = sense[0].gloss[0].text;
+
+        //add the english word to the map
+        for (var j = 0; j < kanji.length; j++)
+        {
+            wordMap.set(kanji[j].text, englishWord);
+        }
+        for (var j = 0; j < kana.length; j++)
+        {
+            wordMap.set(kana[j].text, englishWord);
+        }
+    }
+}
+
+function getTranslation(word)
+{
+    if(wordMap.size == 0)
+    {
+        initializeTranslation(word);
+    }
+    return wordMap.get(word);
+}
 
 var japanesePOS = ["名詞", "形容詞", "動詞", "副詞", "助詞", "助動詞", "接続詞", "感動詞"];
 
@@ -61,7 +107,18 @@ kuromoji.builder({ dicPath: chrome.runtime.getURL("kuromoji/dict")}).build(funct
                         ruby2.appendChild(ruby);
                         //create translation text below the japanese text
                         var transl = document.createElement("rt");
-                        transl.textContent = "test";
+
+                        //get the translation from the the Gisho API
+                        var translation = getTranslation(surfaceForm);
+                        if(translation != null)
+                        {
+                            transl.textContent = translation;
+                        }
+                        else
+                        {
+                            transl.textContent = ""; //no translation found
+                        }
+
                         //make the size of the translation text smaller
                         transl.style.fontSize = "0.35em";
                         //add the translation text to the ruby element

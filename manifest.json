@@ -20,7 +20,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources" : [ "kuromoji/dict/*.dat.gz" ],
+      "resources" : [ "kuromoji/dict/*.dat.gz", "jmdict-eng-common-3.3.1.json" ],
       "matches": ["<all_urls>"]
     }
   ],
