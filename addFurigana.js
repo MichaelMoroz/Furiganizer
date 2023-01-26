@@ -36,6 +36,9 @@ function initializeTranslation(word)
         var sense = word.sense;
         var englishWord = sense[0].gloss[0].text;
 
+        //remove anything inside parentheses in the english word
+        englishWord = englishWord.replace(/\(.*?\)/g, '');
+
         //add the english word to the map
         for (var j = 0; j < kanji.length; j++)
         {
@@ -85,6 +88,95 @@ function isMeaningKnown(word) {
 // Check if you know the reading of a word
 function isReadingKnown(word) {
     return !!readingDictionary[word];
+}
+
+
+function adReadingToDictionary(word) {
+    //add word to dictionary
+    readingDictionary[word] = true;
+    //save dictionary
+    saveDictionary();
+    
+    console.log(word);
+  }
+  
+  function addMeaningToDictionary(word) {
+    //add word to dictionary
+    meaningDictionary[word] = true;
+    //save dictionary
+    saveDictionary();
+  
+    console.log(word);
+  }
+  
+  function addWordToDictionary(word) {  
+    //add word to dictionary
+    meaningDictionary[word] = true;
+    readingDictionary[word] = true;
+    //save dictionary
+    saveDictionary();
+  
+    console.log(word);
+  }
+  
+  function removeReadingFromDictionary(word) {
+    //remove word from dictionary
+    readingDictionary[word] = false;
+    //save dictionary
+    saveDictionary();
+  
+    console.log(word);
+  }
+  
+  function removeMeaningFromDictionary(word) {
+    //remove word from dictionary
+    meaningDictionary[word] = false;
+    //save dictionary
+    saveDictionary();
+  
+    console.log(word);
+  }
+  
+  function removeWordFromDictionary(word) {
+    //remove word from dictionary
+    meaningDictionary[word] = false;
+    readingDictionary[word] = false;
+    //save dictionary
+    saveDictionary();
+    
+    console.log(word);
+  }
+  
+  function getElementAndApply(applyWordFunction) {
+    var element = document.getSelection();
+    var anchorElement = element.anchorNode.parentElement;
+    //check if element is of class japanese
+    if(anchorElement.classList.contains("japanese"))
+    {
+        //get the word
+        var word = anchorElement.textContent;
+        //add word to dictionary
+        applyWordFunction(word);
+    }
+  }
+
+//function to save the dictionary to a json file
+function exportDictionary() {
+    //combine the dictionaries into a single json file
+    var dictionary = {
+        "meaningDictionary": meaningDictionary,
+        "readingDictionary": readingDictionary
+    };
+    //convert the json file to a string
+    var dictionaryString = JSON.stringify(dictionary);
+    //download a file with the dictionary
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(dictionaryString));
+    element.setAttribute('download', "dictionary.json");
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
 }
 
 //load the dictionary

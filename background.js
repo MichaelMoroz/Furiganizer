@@ -12,41 +12,48 @@ const KNOWN_ALL = "knownAll";
 const REMOVE_READING = "removeReading";
 const REMOVE_MEANING = "removeMeaning";
 const REMOVE_ALL = "removeAll";
+const EXPORT_DICTIONARY = "exportDictionary";
 
 chrome.contextMenus.create({
   title: "Hide furigana (known reading)",
-  contexts: ['all'],
+  contexts: ['selection'],
   id: KNOWN_READING
 });
 
 chrome.contextMenus.create({
   title: "Hide translation (known meaning)",
-  contexts: ['all'],
+  contexts: ['selection'],
   id: KNOWN_MEANING
 });
 
 chrome.contextMenus.create({
   title: "Hide furigana and translation (known reading and meaning)",
-  contexts: ['all'],
+  contexts: ['selection'],
   id: KNOWN_ALL
 });
 
 chrome.contextMenus.create({
   title: "Show furigana (unknown reading)",
-  contexts: ['all'],
+  contexts: ['selection'],
   id: REMOVE_READING
 });
 
 chrome.contextMenus.create({
   title: "Show translation (unknown meaning)",
-  contexts: ['all'],
+  contexts: ['selection'],
   id: REMOVE_MEANING
 });
 
 chrome.contextMenus.create({
   title: "Show furigana and translation (unknown reading and meaning)",
-  contexts: ['all'],
+  contexts: ['selection'],
   id: REMOVE_ALL
+});
+
+chrome.contextMenus.create({
+  title: "Export dictionary",
+  contexts: ['all'],
+  id: EXPORT_DICTIONARY
 });
 
 function onClickHandler(info, tab) {
@@ -55,25 +62,7 @@ function onClickHandler(info, tab) {
       target: { tabId: tab.id },
       function: 
         function() {
-            function addWordToDictionary(word) {
-              //add word to dictionary
-              readingDictionary[word] = true;
-              //save dictionary
-              saveDictionary();
-              
-              console.log(word);
-            }
-
-            var element = document.getSelection();
-            var anchorElement = element.anchorNode.parentElement;
-            //check if element is of class japanese
-            if(anchorElement.classList.contains("japanese"))
-            {
-                //get the word
-                var word = anchorElement.textContent;
-                //add word to dictionary
-                addWordToDictionary(word);
-            }
+          getElementAndApply(addReadingToDictionary);
         }
     });
   }
@@ -82,25 +71,7 @@ function onClickHandler(info, tab) {
       target: { tabId: tab.id },
       function: 
         function() {
-            function addWordToDictionary(word) {
-              //add word to dictionary
-              meaningDictionary[word] = true;
-              //save dictionary
-              saveDictionary();
-              
-              console.log(word);
-            }
-
-            var element = document.getSelection();
-            var anchorElement = element.anchorNode.parentElement;
-            //check if element is of class japanese
-            if(anchorElement.classList.contains("japanese"))
-            {
-                //get the word
-                var word = anchorElement.textContent;
-                //add word to dictionary
-                addWordToDictionary(word);
-            }
+          getElementAndApply(addMeaningToDictionary);
         }
     });
   }
@@ -109,26 +80,7 @@ function onClickHandler(info, tab) {
       target: { tabId: tab.id },
       function: 
         function() {
-            function addWordToDictionary(word) {
-              //add word to dictionary
-              meaningDictionary[word] = true;
-              readingDictionary[word] = true;
-              //save dictionary
-              saveDictionary();
-              
-              console.log(word);
-            }
-
-            var element = document.getSelection();
-            var anchorElement = element.anchorNode.parentElement;
-            //check if element is of class japanese
-            if(anchorElement.classList.contains("japanese"))
-            {
-                //get the word
-                var word = anchorElement.textContent;
-                //add word to dictionary
-                addWordToDictionary(word);
-            }
+          getElementAndApply(addWordToDictionary);
         }
     });
   }
@@ -137,25 +89,7 @@ function onClickHandler(info, tab) {
       target: { tabId: tab.id },
       function: 
         function() {
-            function removeWordFromDictionary(word) {
-              //remove word from dictionary
-              readingDictionary[word] = false;
-              //save dictionary
-              saveDictionary();
-              
-              console.log(word);
-            }
-
-            var element = document.getSelection();
-            var anchorElement = element.anchorNode.parentElement;
-            //check if element is of class japanese
-            if(anchorElement.classList.contains("japanese"))
-            {
-                //get the word
-                var word = anchorElement.textContent;
-                //remove word from dictionary
-                removeWordFromDictionary(word);
-            }
+          getElementAndApply(removeReadingFromDictionary);
         }
     });
   }
@@ -164,25 +98,7 @@ function onClickHandler(info, tab) {
       target: { tabId: tab.id },
       function: 
         function() {
-            function removeWordFromDictionary(word) {
-              //remove word from dictionary
-              meaningDictionary[word] = false;
-              //save dictionary
-              saveDictionary();
-              
-              console.log(word);
-            }
-
-            var element = document.getSelection();
-            var anchorElement = element.anchorNode.parentElement;
-            //check if element is of class japanese
-            if(anchorElement.classList.contains("japanese"))
-            {
-                //get the word
-                var word = anchorElement.textContent;
-                //remove word from dictionary
-                removeWordFromDictionary(word);
-            }
+          getElementAndApply(removeMeaningFromDictionary);
         }
     });
   }
@@ -191,26 +107,16 @@ function onClickHandler(info, tab) {
       target: { tabId: tab.id },
       function: 
         function() {
-            function removeWordFromDictionary(word) {
-              //remove word from dictionary
-              meaningDictionary[word] = false;
-              readingDictionary[word] = false;
-              //save dictionary
-              saveDictionary();
-              
-              console.log(word);
-            }
-
-            var element = document.getSelection();
-            var anchorElement = element.anchorNode.parentElement;
-            //check if element is of class japanese
-            if(anchorElement.classList.contains("japanese"))
-            {
-                //get the word
-                var word = anchorElement.textContent;
-                //remove word from dictionary
-                removeWordFromDictionary(word);
-            }
+          getElementAndApply(removeWordFromDictionary);
+        }
+    });
+  }
+  else if (info.menuItemId === EXPORT_DICTIONARY) {
+    chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      function: 
+        function() {
+          exportDictionary();
         }
     });
   }
