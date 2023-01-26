@@ -10,6 +10,9 @@ function getColor(r,g,b)
     return "rgb(" + r + "," + g + "," + b + ")";
 }
 
+// Create a new instance of the tokenizer builder
+const builder = kuromoji.builder({ dicPath: chrome.runtime.getURL("kuromoji/dict")});
+
 var wordMap = new Map();
 
 function initializeTranslation(word)
@@ -209,6 +212,71 @@ function importDictionary() {
     });
 }
 
+//export the unknown words as an anki deck
+function exportUnknownWords() {
+    //get the unknown words
+    var unknownWords = getUnknownWords();
+    //create the anki deck
+    var ankiDeck = createAnkiDeck(unknownWords);
+    //download the anki deck
+    downloadAnkiDeck(ankiDeck);
+}
+
+//get the unknown words
+function getUnknownWords() {
+    //get the unknown words and their translations from the meaning and reading dictionaries which are false
+    var unknownWords = {};
+    for(var word in meaningDictionary) {
+        if(!meaningDictionary[word]) {
+            unknownWords[word] = getTranslation(word);
+        }
+    }
+    for(var word in readingDictionary) {
+        if(!readingDictionary[word]) {
+            unknownWords[word] = getTranslation(word);
+        }
+    }
+    //return the unknown words
+    return unknownWords;
+}
+
+var thistokenizer;
+builder.build(function(err, tokenizer) {
+    thistokenizer = tokenizer;
+});
+
+//create an anki deck csv file from the unknown words
+function createAnkiDeck(unknownWords) {
+    //create the anki deck
+    var ankiDeck = "";
+    for(var word in unknownWords) {
+        //add the word, translation, reading we get from kuromoji and japanese tag to the anki deck
+        ankiDeck += word + "," + unknownWords[word] + " (" + convertKatakanaToHiragana(getReading(word)) + ") ,japanese \r \n";
+    }
+    //return the anki deck
+    return ankiDeck;
+}
+
+//get reading of word
+function getReading(word) {
+    //get the reading of the word using kuromoji
+    var reading = thistokenizer.tokenize(word)[0].reading;
+    //return the reading
+    return reading;
+}
+
+//download the anki deck
+function downloadAnkiDeck(ankiDeck) {
+    //download a file with the anki deck
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(ankiDeck));
+    element.setAttribute('download', "ankiDeck.csv");
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+
 //load the dictionary
 getDictionary();
 //saveDictionary();
@@ -216,7 +284,7 @@ getDictionary();
 var japanesePOS = ["名詞", "形容詞", "動詞", "副詞", "助詞", "助動詞", "接続詞", "感動詞"];
 
 var textElements = document.querySelectorAll("p, span, h1, h2, h3");
-kuromoji.builder({ dicPath: chrome.runtime.getURL("kuromoji/dict")}).build(function (err, _tokenizer) {
+builder.build(function (err, _tokenizer) {
     for (var i = 0; i < textElements.length; i++) {
         var textElement = textElements[i];
         var text = textElement.textContent;

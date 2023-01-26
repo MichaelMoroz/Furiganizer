@@ -14,6 +14,7 @@ const REMOVE_MEANING = "removeMeaning";
 const REMOVE_ALL = "removeAll";
 const EXPORT_DICTIONARY = "exportDictionary";
 const IMPORT_DICTIONARY = "importDictionary";
+const EXPORT_ANKI_DECK = "exportAnkiDeck";
 
 chrome.contextMenus.create({
   title: "Hide furigana (known reading)",
@@ -61,6 +62,12 @@ chrome.contextMenus.create({
   title: "Import dictionary",
   contexts: ['all'],
   id: IMPORT_DICTIONARY
+});
+
+chrome.contextMenus.create({
+  title: "Export Anki deck",
+  contexts: ['all'],
+  id: EXPORT_ANKI_DECK
 });
 
 function onClickHandler(info, tab) {
@@ -133,6 +140,15 @@ function onClickHandler(info, tab) {
       function: 
         function() {
           importDictionary();
+        }
+    });
+  }
+  else if (info.menuItemId === EXPORT_ANKI_DECK) {
+    chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      function: 
+        function() {
+          exportUnknownWords();
         }
     });
   }
